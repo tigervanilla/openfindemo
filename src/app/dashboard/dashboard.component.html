@@ -10,8 +10,19 @@
 <div style="margin: 2em;">
   <button (click)="notify()">Notify</button> <br>
 </div>
+
 <div style="margin: 2em;">
-  <button (click)="childWindow()">Child Window</button> <br>
+  <button (click)="createApplication()">Create Application</button> <br>
+</div>
+
+<div style="margin: 2em;">
+  <button (click)="createView()">Create View</button> <br>
+</div>
+
+<div style="margin: 2em;">
+  <button (click)="createWindow()">Create Window</button> <br>
+  <input type="text" name="newUrl" #newUrl> <br>
+  <button (click)="navigateWindow(newUrl.value)">Navigate Window</button>
 </div>
 
 <div>

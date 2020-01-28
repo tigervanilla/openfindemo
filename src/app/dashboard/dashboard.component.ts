@@ -45,7 +45,9 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  childWindow() {
+  // Applications are independent of parent
+  // Stays active even if parent is closed
+  createApplication() {
     var app = new fin.desktop.Application({
       url: "http://localhost:4200/heroes",
       uuid: "uuid-foo-88",
@@ -61,8 +63,7 @@ export class DashboardComponent implements OnInit {
     }, () => {
       console.log("Application successfully created");
       app.run();
-
-
+      // setTimeout(() => app.close(),2000);
     }, () => {
       console.log("Error creating application");
     });
@@ -79,5 +80,49 @@ export class DashboardComponent implements OnInit {
     };
 
     fin.desktop.InterApplicationBus.send('uuid-foo-88', 'TOPIC_APP_TO_APP', { message: msg }, successCallback, errorCallback);
+  }
+
+  async createViewHelper() {
+    const me = await fin.Window.getCurrent();
+    return fin.View.create({
+        name: `View-${Date.now()}`, 
+        target: me.identity, 
+        bounds: {top: 10, left: 10, width: 200, height: 200} 
+    });
+  }
+
+  // Views are embedded INSIDE the parent
+  // Gets closed with the parent
+  createView() {
+    this.createViewHelper().then(createdView => {
+      const view = createdView;
+      console.log('View created', view);
+      view.navigate('https://duckduckgo.com');
+      console.log('View navigated to duckduckgo');
+    }).catch(err => console.log(err));
+  }
+
+  // Windows are dependent on the parent
+  // Gets closed with the parent
+  createWindow() {
+    const winOptions = {
+      name: `Window-${Date.now()}`,
+      defaultWidth: 300,
+      defaultHeight: 300,
+      url: 'https://duckduckgo.com',
+      frame: true,
+      autoShow: true
+    };
+    fin.Window.create(winOptions).then(() => console.log('window created')).catch(err => console.log(err));
+  }
+
+  navigateWindow(newUrl: string) {
+    const application = fin.desktop.Application.getCurrent();
+    application.getChildWindows(function (children) {
+      children.forEach(function (childWindow) {
+          console.log("Showing child: " + childWindow.name);
+          childWindow.navigate(newUrl);
+      });
+  });
   }
 }
